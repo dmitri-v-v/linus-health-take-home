@@ -1,0 +1,25 @@
+module.exports = {
+	preset: 'ts-jest',
+	rootDir: '.',
+	roots: ['<rootDir>'],
+	setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+	collectCoverageFrom: [
+		'src/**/*.{js,jsx,ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/server.ts',
+		'!src/logger.ts',
+		'!src/enums/**',
+	],
+	runner: 'groups',
+	testMatch: [
+		'<rootDir>/tests/**/*.test.{js,jsx,ts,tsx}',
+		'<rootDir>/integration-tests/**/*.test.{js,jsx,ts,tsx}',
+	],
+	testEnvironment: 'node',
+	testResultsProcessor: 'jest-sonar-reporter',
+	transformIgnorePatterns: ['^.+\\.module\\.(css|sass|scss)$'],
+	moduleFileExtensions: ['js', 'ts', 'tsx', 'jsx', 'node', 'json'],
+	resetMocks: true,
+	restoreMocks: true,
+	workerIdleMemoryLimit: '512MB',
+};
