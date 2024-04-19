@@ -6,7 +6,7 @@ export const up = async (knex: Knex) => {
 (
     first_name TEXT NOT NULL,
     last_name  TEXT NOT NULL,
-    birth_date data_type TEXT NOT NULL,
+    birth_date TEXT NOT NULL,
     mrn        TEXT NOT NULL,
     location   TEXT NOT NULL
 )`);
