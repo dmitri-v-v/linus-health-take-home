@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 
 export async function up(knex: Knex): Promise<void> {
-	const tableExists = await knex.schema.hasTable('provider');
+	const tableExists = await knex.schema.hasTable('patient');
 
 	if (!tableExists) {
 		console.log('Creating patient table');
