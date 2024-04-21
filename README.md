@@ -1,5 +1,7 @@
 To Do:
 
+[ ] USe JSONStream to read the seed file.
+
 [ ] Add indices
 
 [ ] npm WARN deprecated @types/knex@0.16.1: This is a stub types definition. knex provides its own type definitions, so you do not need this installed.
