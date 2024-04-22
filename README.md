@@ -1,5 +1,7 @@
 To Do:
 
+[x] Anonymmize seeding logs (hash function?)
+
 [ ] USe JSONStream to read the seed file.
 
 [ ] Add indices
