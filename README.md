@@ -1,5 +1,11 @@
 To Do:
 
+[ ] Add a table for keeping track of completed data seeds so don't have to reseed on every server start.
+
+[ ] Add input sanitizaton via express-validator
+
+[ ] Switch to using absolute paths via module-alias package.
+
 [x] Anonymmize seeding logs (hash function?)
 
 [ ] USe JSONStream to read the seed file.
