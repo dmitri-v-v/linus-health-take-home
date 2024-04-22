@@ -3,11 +3,16 @@ import { db } from './src/db';
 
 app.listen(PORT, async () => {
 	try {
-		await db.migrate.latest();
-		console.log('Migrations completed');
+		const [batchNo, migrations]: [number, Array<string>] = await db.migrate.latest();
 
-		await db.seed.run();
-		console.log('Seeding completed');
+		migrations.forEach(file => {
+			console.log(`Ran migration file ${file} in batch ${batchNo}.`);
+		});
+
+		const [seeds]: [Array<string>] = await db.seed.run();
+		seeds.forEach(seed => {
+			console.log(`Ran seed file ${seed}.`);
+		})
 		console.log(`App Listening on http://localhost:${PORT}`);
 	} catch (error) {
 		console.error('Error setting up database:', error);
