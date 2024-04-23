@@ -12,7 +12,7 @@ export type PatientDetailsResponse = Omit<Patient, 'generalPractitioner' | 'id'>
 
 export const filterPatients = async (firstName?: string, lastName?: string, birthDate?: string, npi?: string): 
     Promise<FilterPatientsResponse[]> => {
-    let query = db('patient').orderBy('mrn');
+    let query = db<FilterPatientsResponse>('patient');
 
     if (firstName) {
         query = query.where('first_name', firstName);
@@ -30,7 +30,7 @@ export const filterPatients = async (firstName?: string, lastName?: string, birt
         let provider;
 
         try {
-            provider = await db('provider').select('*').where('npi', npi).first();
+            provider = await db('provider').select('id').where('npi', npi).first();
         } catch (error) {
             console.error('Error finding provider', error);
             throw error;
@@ -44,21 +44,22 @@ export const filterPatients = async (firstName?: string, lastName?: string, birt
         query = query.where('general_practitioner_id', provider.id);
     }
 
-    let results: any[] = [];
+    let patients: FilterPatientsResponse[] = [];
 
     try {
-        results = await query.select();
+        patients = await query.select(
+            'mrn', 
+            'first_name as firstName', 
+            'last_name as lastName', 
+            'birth_date as birthDate'
+        )
+        .orderBy('lastName').orderBy('firstName');
     } catch (error) {
         console.error('Error fetching patients', error);
         throw error;
     }
 
-    return results.map(record => ({
-        firstName: record.first_name,
-        lastName: record.last_name,
-        mrn: record.mrn,
-        birthDate: record.birth_date,
-    }));
+    return patients;
 }
 
 export const getPatientData = async (mrn: string): Promise<PatientDetailsResponse> => {

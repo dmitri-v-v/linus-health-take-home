@@ -48,14 +48,15 @@ function validateQueryParamIsString(req: any, res: any, ...params: string[]): bo
 function validateDateQueryParameter(paramName: string, dateValue: string | undefined, res: any): string | undefined {
 	const date = dateValue? new Date(dateValue): undefined;
 
-	if (date && isNaN(date.getTime())) {
-		res.status(400).json({ error: `${paramName} is not a valid date.`});
-		return;
+	if (date) {
+		if (isNaN(date.getTime())) {
+			res.status(400).json({ error: `${paramName} is not a valid date.`});
+		} else {
+			return date.toISOString().slice(0,10);
+		}
 	}
-
-	return date?.toISOString().slice(0,10)
 }
-  
+
 /**
  * A health check that uses an optional query parameter
  */
@@ -71,8 +72,15 @@ router.get('/health', async (req, res) => {
  *  * Their provider's NPI
  */
 router.get('/patients', async (req, res, next): Promise<void> => {
+	const filters: string[] = ['firstName', 'lastName', 'birthDate', 'npi'];
+	
 	try {
-		if (!validateQueryParamIsString(req, res, 'firstName', 'lastName', 'birthDate', 'npi')) {
+		if (!filters.some(filter => filter in req.query)) {
+			res.status(400).json({ error: `At least one of: [${filters.join(', ')}] query params is required.`});
+			return;
+		}
+
+		if (!validateQueryParamIsString(req, res, ...filters)) {
 			return; // Response already sent.
 		}
 
@@ -86,7 +94,7 @@ router.get('/patients', async (req, res, next): Promise<void> => {
 		// Validate the birthDate parameter:
 		const validatedBirthDate = validateDateQueryParameter('birthDate', birthDate, res);
 
-		if (!validatedBirthDate) {
+		if (birthDate && !validatedBirthDate) {
 			return; // Means we sent the invalid date response.
 		}
 
