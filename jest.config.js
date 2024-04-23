@@ -1,8 +1,8 @@
 module.exports = {
 	preset: 'ts-jest',
 	rootDir: '.',
-	roots: ['<rootDir>'],
-	setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+	roots: ['src'],
+	setupFilesAfterEnv: ['src/tests/setup.ts'],
 	collectCoverageFrom: [
 		'src/**/*.{js,jsx,ts,tsx}',
 		'!src/**/*.d.ts',
@@ -12,8 +12,8 @@ module.exports = {
 	],
 	runner: 'groups',
 	testMatch: [
-		'<rootDir>/tests/**/*.test.{js,jsx,ts,tsx}',
-		'<rootDir>/integration-tests/**/*.test.{js,jsx,ts,tsx}',
+		'src/tests/**/*.test.{js,jsx,ts,tsx}',
+		'src/integration-tests/**/*.test.{js,jsx,ts,tsx}',
 	],
 	testEnvironment: 'node',
 	testResultsProcessor: 'jest-sonar-reporter',
