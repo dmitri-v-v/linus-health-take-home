@@ -1,3 +1,4 @@
+import { Patient } from '../../models';
 import { db } from '../../db';
 
 export interface FilterPatientsResponse {
@@ -6,6 +7,8 @@ export interface FilterPatientsResponse {
     mrn: string,
     birthDate: Date,
 }
+
+export type PatientDetailsResponse = Omit<Patient, 'generalPractitioner' | 'id'> | null;
 
 export const filterPatients = async (firstName?: string, lastName?: string, birthDate?: string): Promise<FilterPatientsResponse[]> => {
     let query = db('patient');
@@ -22,7 +25,13 @@ export const filterPatients = async (firstName?: string, lastName?: string, birt
         query = query.where('birth_date', birthDate);
     }
 
-    const results = await query.select();
+    let results: any[] = [];
+
+    try {
+        results = await query.select();
+    } catch (error) {
+        console.error('Error fetching patients', error);
+    }
 
     return results.map(record => ({
         firstName: record.first_name,
@@ -30,4 +39,27 @@ export const filterPatients = async (firstName?: string, lastName?: string, birt
         mrn: record.mrn,
         birthDate: record.birth_date,
     }));
+}
+
+export const getPatientData = async (mrn: string): Promise<PatientDetailsResponse> => {
+    let patientRecord;
+
+    try {
+        patientRecord = await db('patient').select('*').where('mrn', mrn).first();
+    } catch (error) {
+        console.error('Error fetching patient data', error);
+    }
+
+    if (patientRecord) {
+        return { 
+            mrn: patientRecord.mrn,
+            firstName: patientRecord.first_name,
+            lastName: patientRecord.last_name,
+            birthDate: patientRecord.birth_date,
+            appointment: patientRecord.appointment_date,
+            location: patientRecord.location
+         };
+    } else {
+        return null;
+    }
 }

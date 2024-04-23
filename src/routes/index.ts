@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getHealthStatus } from '../services/healthService';
-import { filterPatients, FilterPatientsResponse } from '../services/patientService';
+import { filterPatients, FilterPatientsResponse, getPatientData, PatientDetailsResponse } from '../services/patientService';
 export const router = Router({});
 
 function validateQueryParams(req: any, res: any, ...params: any[]) {
@@ -56,4 +56,22 @@ router.get('/patients', async (req, res): Promise<FilterPatientsResponse | Recor
 		console.error(err);
 		return res.status(500).json({ error: 'An error occurred while retrieving patients' });
 	}
+});
+
+router.get('/patients/:mrn', async (req, res) => {
+	const { mrn } = req.params;
+	let patient: PatientDetailsResponse;
+
+	try {
+		patient = await getPatientData(mrn);
+
+		if (patient) {
+			return res.json(patient);
+		} else {
+			return res.status(404).json({ message: 'No patient found with that mrn.'});
+		}
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: 'An error occurred while retrieving the patient' });
+	  }
 });
