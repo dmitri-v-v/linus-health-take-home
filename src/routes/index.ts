@@ -23,21 +23,19 @@ router.get('/health', async (req, res) => {
  * The endpoint for retrieving patients and their details.
  */
 router.get('/patients', async (req, res): Promise<FilterPatientsResponse | Record<string, any>> => {
-	const queryParamsValidationResponse = validateQueryParams(req, res, 'firstName', 'lastName', 'birthDate');
+	const queryParamsValidationResponse = validateQueryParams(req, res, 'firstName', 'lastName', 'birthDate', 'npi');
 
 	if (queryParamsValidationResponse) {
 		return queryParamsValidationResponse;
 	}
 
 	try {
-		let { firstName, lastName, birthDate } = req.query as {
+		let { firstName, lastName, birthDate, npi } = req.query as {
 			firstName?: string;
 			lastName?: string;
 			birthDate?: string;
+			npi?: string;
 		};
-
-		firstName = firstName?.trim();
-		lastName = lastName?.trim();
 		
 		// Validate the birthDate parameter:
 		const birthDateObj = birthDate? new Date(birthDate): undefined;
@@ -46,7 +44,7 @@ router.get('/patients', async (req, res): Promise<FilterPatientsResponse | Recor
 			return res.status(400).json({ error: 'birthDate is not a valid date format'});
 		}
 
-		const patients = await filterPatients(firstName, lastName, birthDateObj?.toISOString().slice(0,10));
+		const patients = await filterPatients(firstName, lastName, birthDateObj?.toISOString().slice(0,10), npi);
 
 		if (patients.length === 0) {
 			return res.status(404).json({ message: 'No patients found matching the filter criteria.'});

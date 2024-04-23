@@ -10,7 +10,8 @@ export interface FilterPatientsResponse {
 
 export type PatientDetailsResponse = Omit<Patient, 'generalPractitioner' | 'id'> | null;
 
-export const filterPatients = async (firstName?: string, lastName?: string, birthDate?: string): Promise<FilterPatientsResponse[]> => {
+export const filterPatients = async (firstName?: string, lastName?: string, birthDate?: string, npi?: string): 
+    Promise<FilterPatientsResponse[]> => {
     let query = db('patient');
 
     if (firstName) {
@@ -23,6 +24,23 @@ export const filterPatients = async (firstName?: string, lastName?: string, birt
 
     if (birthDate) {
         query = query.where('birth_date', birthDate);
+    }
+
+    if (npi) {
+        let provider;
+
+        try {
+            provider = await db('provider').select('*').where('npi', npi).first();
+        } catch (error) {
+            console.error('Error finding provider', error);
+        }
+
+        // If we didn't find a matching provider, can return early as no patients possible matching all filters:
+        if (!provider) {
+            return [];
+        }
+
+        query = query.where('general_practitioner_id', provider.id);
     }
 
     let results: any[] = [];
