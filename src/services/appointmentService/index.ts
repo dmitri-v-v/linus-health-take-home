@@ -37,6 +37,7 @@ export const getAppointmentsByDateRange = async (startDate: string, endDate: str
             .orderBy('mrn');
     } catch (error) {
         console.error('Error fetching appointments', error);
+        throw error;
     }
     
     return appointments.map(record => ({

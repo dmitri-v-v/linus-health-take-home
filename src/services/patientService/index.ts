@@ -33,6 +33,7 @@ export const filterPatients = async (firstName?: string, lastName?: string, birt
             provider = await db('provider').select('*').where('npi', npi).first();
         } catch (error) {
             console.error('Error finding provider', error);
+            throw error;
         }
 
         // If we didn't find a matching provider, can return early as no patients possible matching all filters:
@@ -49,6 +50,7 @@ export const filterPatients = async (firstName?: string, lastName?: string, birt
         results = await query.select();
     } catch (error) {
         console.error('Error fetching patients', error);
+        throw error;
     }
 
     return results.map(record => ({
@@ -66,6 +68,7 @@ export const getPatientData = async (mrn: string): Promise<PatientDetailsRespons
         patientRecord = await db('patient').select('*').where('mrn', mrn).first();
     } catch (error) {
         console.error('Error fetching patient data', error);
+        throw error;
     }
 
     if (patientRecord) {

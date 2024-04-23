@@ -70,7 +70,7 @@ router.get('/health', async (req, res) => {
  *  * birth date
  *  * Their provider's NPI
  */
-router.get('/patients', async (req, res): Promise<void> => {
+router.get('/patients', async (req, res, next): Promise<void> => {
 	try {
 		if (!validateQueryParamIsString(req, res, 'firstName', 'lastName', 'birthDate', 'npi')) {
 			return; // Response already sent.
@@ -98,15 +98,16 @@ router.get('/patients', async (req, res): Promise<void> => {
 			res.json(patients);
 		}
 	} catch (err) {
-		console.error(err);
-		res.status(500).json({ error: 'An error occurred while retrieving patients' });
+		const error = err as Error;
+		error.message = 'An error occurred while retrieving patients.';
+		next(err);
 	}
 });
 
 /**
  * The endpoint for retrieving a patient's details by their MRN.
  */
-router.get('/patients/:mrn', async (req, res): Promise<void> => {
+router.get('/patients/:mrn', async (req, res, next): Promise<void> => {
 	const { mrn } = req.params;
 
 	try {
@@ -118,15 +119,16 @@ router.get('/patients/:mrn', async (req, res): Promise<void> => {
 			res.status(404).json({ message: 'No patient found with that mrn.'});
 		}
 	} catch (err) {
-		console.error(err);
-		res.status(500).json({ error: 'An error occurred while retrieving the patient' });
+		const error = err as Error;
+		error.message = 'An error occurred while retrieving the patient.';
+		next(err);
 	  }
 });
 
 /**
  * The endpoint for retrieving a list of appointments by a date range.
  */
-router.get('/appointments', async (req, res): Promise<void> => {
+router.get('/appointments', async (req, res, next): Promise<void> => {
     try {
 		if (!validateQueryParamIsString(req, res, 'startDate', 'endDate')) {
 			return; // Response already sent.
@@ -155,15 +157,16 @@ router.get('/appointments', async (req, res): Promise<void> => {
 			res.json(appointments);
 		}
     } catch (err) {
-        console.error(err);
-		res.status(500).json({ error: 'An error occurred while retrieving the appointments.' });
+		const error = err as Error;
+		error.message = 'An error occurred while retrieving the appointments.';
+		next(err);
     }
 });
 
 /**
  * The endpoint for retrieving the health providers for a given location.
  */
-router.get('/providers', async (req, res): Promise<void> => {
+router.get('/providers', async (req, res, next): Promise<void> => {
 	if (!req.query.location) {
 		res.status(400).json({ error: 'location is a required query parameter'});
 		return;
@@ -184,7 +187,8 @@ router.get('/providers', async (req, res): Promise<void> => {
 			res.json(providers);
 		}
 	} catch (err) {
-		console.error(err);
-		res.status(500).json({ error: 'An error occurred while retrieving providers' });
+		const error = err as Error;
+		error.message = 'An error occurred while retrieving providers.';
+		next(err);
 	}
 });

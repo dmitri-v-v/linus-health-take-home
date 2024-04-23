@@ -20,6 +20,7 @@ export const getProvidersByLocation = async (location: string): Promise<Provider
             .orderBy('firstName')
     } catch (error) {
         console.error('Error fetching providers', error);
+        throw error;
     }
 
     return providers;
