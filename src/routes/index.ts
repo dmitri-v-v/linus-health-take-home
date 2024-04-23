@@ -19,23 +19,38 @@ export const router = Router({});
  * @param req The request containing the query params
  * @param res The response that will be sent if any of the params are invalid
  * @param params The list of parameter names to check
- * @returns 
+ * @returns True if all query parameters are strings, false otherwise.
  */
-function validateQueryParamIsString(req: any, res: any, ...params: any[]) {
+function validateQueryParamIsString(req: any, res: any, ...params: string[]): boolean {
 	for (const param of params) {
 		const value = req.query[param];
 
 		if (value && typeof value !== 'string') {
-			return res.status(400).json({ error: `Invalid query parameter type. ${param} must be a string.` });
+			res.status(400).json({ error: `Invalid query parameter type. ${param} must be a string.` });
+			return false;
 		}
 	}
+
+	return true;
 }
 
-function validateDateQueryParameter(paramName: string, dateValue: string | undefined, res: any): any {
+/**
+ * Validates that the provided dte query parameter is in a valid date format (i.e. one that Date class can parse automatically).
+ * If it's not, modifies the provided `res` object with the corresponding error message and sends the Response.
+ * If it is, returns the provided date formatted as the services expect it. This allows dates to be specified in any valid
+ * format in the query parameter to still work.
+ * 
+ * @param paramName Used only for constructing the error message to be sent.
+ * @param dateValue 
+ * @param res 
+ * @returns `dateValue` in proper format, or void if it's not a valid Date.
+ */
+function validateDateQueryParameter(paramName: string, dateValue: string | undefined, res: any): string | undefined {
 	const date = dateValue? new Date(dateValue): undefined;
 
 	if (date && isNaN(date.getTime())) {
-		return res.status(400).json({ error: `${paramName} is not a valid date.`});
+		res.status(400).json({ error: `${paramName} is not a valid date.`});
+		return;
 	}
 
 	return date?.toISOString().slice(0,10)
@@ -57,6 +72,10 @@ router.get('/health', async (req, res) => {
  */
 router.get('/patients', async (req, res): Promise<void> => {
 	try {
+		if (!validateQueryParamIsString(req, res, 'firstName', 'lastName', 'birthDate', 'npi')) {
+			return; // Response already sent.
+		}
+
 		let { firstName, lastName, birthDate, npi } = req.query as {
 			firstName?: string;
 			lastName?: string;
@@ -67,7 +86,7 @@ router.get('/patients', async (req, res): Promise<void> => {
 		// Validate the birthDate parameter:
 		const validatedBirthDate = validateDateQueryParameter('birthDate', birthDate, res);
 
-		if (validatedBirthDate && typeof validatedBirthDate !== 'string' ) {
+		if (!validatedBirthDate) {
 			return; // Means we sent the invalid date response.
 		}
 
@@ -109,6 +128,10 @@ router.get('/patients/:mrn', async (req, res): Promise<void> => {
  */
 router.get('/appointments', async (req, res): Promise<void> => {
     try {
+		if (!validateQueryParamIsString(req, res, 'startDate', 'endDate')) {
+			return; // Response already sent.
+		}
+
 		const startDate = req.query.startDate as string;
 		const endDate = req.query.endDate as string;
 
@@ -120,11 +143,11 @@ router.get('/appointments', async (req, res): Promise<void> => {
 		const validatedStartDate = validateDateQueryParameter('startDate', startDate, res);
 		const validatedEndDate = validateDateQueryParameter('endDate', endDate, res);
 
-		if (typeof validatedStartDate !== 'string' || typeof validatedEndDate !== 'string') {
+		if (!validatedStartDate || !validatedEndDate) {
 			return;
 		}
 
-        const appointments: AppointmentResponse[] = await getAppointmentsByDateRange(startDate, endDate);
+        const appointments: AppointmentResponse[] = await getAppointmentsByDateRange(validatedStartDate, validatedEndDate);
 
 		if (appointments.length === 0) {
 			res.status(404).json({ message: 'No appointments found within that date range.'});
@@ -146,9 +169,7 @@ router.get('/providers', async (req, res): Promise<void> => {
 		return;
 	}
 
-	const queryParamsValidationResponse = validateQueryParamIsString(req, res, 'location');
-
-	if (queryParamsValidationResponse) {
+	if (!validateQueryParamIsString(req, res, 'location')) {
 		return;
 	}
 
