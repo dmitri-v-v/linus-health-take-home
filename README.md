@@ -1,5 +1,7 @@
 To Do:
 
+[ ] Add any uncaught error handling via Express functionality
+
 [ ] Add a table for keeping track of completed data seeds so don't have to reseed on every server start.
 
 [ ] Add input sanitizaton via express-validator

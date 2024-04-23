@@ -12,7 +12,7 @@ export type PatientDetailsResponse = Omit<Patient, 'generalPractitioner' | 'id'>
 
 export const filterPatients = async (firstName?: string, lastName?: string, birthDate?: string, npi?: string): 
     Promise<FilterPatientsResponse[]> => {
-    let query = db('patient');
+    let query = db('patient').orderBy('mrn');
 
     if (firstName) {
         query = query.where('first_name', firstName);
