@@ -4,8 +4,6 @@ Side note: Prior to this I haven't used `knex` library, so some of this was me j
 
 Also, I did not add any additional packages to the project other than the ones it came with. Sometimes there are very strict rules about which third=party packages can be added and which can't, so I decided to err on the side of safety, especially since all of the functionality could be added without any more. They would only be needed for niceties/extras.
 
-I created a git repo in this project, so you should be able to look at all my commits if you were interested.
-
 ## Setup Instructions
 
 Run `npm install`.
